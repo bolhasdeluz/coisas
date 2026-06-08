@@ -269,21 +269,21 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
   <div class="resumo-cards" id="resumoCards"></div>
   <div class="catalog-header">
     <div class="filter-row">
-      <input class="search-input" id="searchInput" placeholder="Buscar por nome, marca, c\u00f4modo..." oninput="filterItems()" style="flex:1">
+      <input class="search-input" id="searchInput" placeholder="Buscar por nome, marca, cômodo..." oninput="filterItems()" style="flex:1">
       <select class="filter-select" id="catFilter" onchange="filterItems()"><option value="">Todas categorias</option></select>
       <select class="filter-select" id="photoFilter" onchange="filterItems()">
         <option value="">Todas as coisas</option>
         <option value="com">Com foto</option>
         <option value="sem">Sem foto</option>
       </select>
-      <button class="btn-tool primary" onclick="openNewItemModal()" style="font-size:13px;padding:8px 14px;border-radius:8px">\uFF0B Nova coisa</button>
+      <button class="btn-tool primary" onclick="openNewItemModal()" style="font-size:13px;padding:8px 14px;border-radius:8px">＋ Nova coisa</button>
       <span class="filter-count" id="filterCount"></span>
     </div>
     <div class="filter-row" style="gap:6px">
-      <button class="fora-toggle" id="foraUsoToggle" onclick="cicloLimpa()">\uD83E\uDDF9 Modo limpa: <strong id="foraUsoState">tudo</strong></button>
+      <button class="fora-toggle" id="foraUsoToggle" onclick="cicloLimpa()">🧹 Modo limpa: <strong id="foraUsoState">tudo</strong></button>
     </div>
     <div class="chip-row" id="destinoChips"><span class="chip-label">Destino</span></div>
-    <div class="chip-row" id="comodoChips"><span class="chip-label">C\u00f4modo</span></div>
+    <div class="chip-row" id="comodoChips"><span class="chip-label">Cômodo</span></div>
     <div class="chip-row" id="estadoChips"><span class="chip-label">Estado</span></div>
     <div class="chip-row" id="etiquetaChips"><span class="chip-label">Etiqueta</span></div>
   </div>
@@ -295,12 +295,12 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     <h2 class="section-title">Fotos &amp; Dados</h2>
     <p class="section-sub">Clique na miniatura para vincular foto. Tudo fica salvo no seu navegador e na nuvem.</p>
     <div class="data-toolbar">
-      <button class="btn-tool primary" onclick="openImportModal()">\u2B06 Importar (XLSX/CSV/JSON)</button>
-      <button class="btn-tool primary" id="exportPdfBtn" onclick="exportPDF()">\u2B07 Exportar PDF</button>
-      <button class="btn-tool" onclick="exportJSON()">\u2B07 Backup JSON</button>
-      <button class="btn-tool" onclick="openNewItemModal()">\uFF0B Nova coisa</button>
-      <button class="btn-tool primary" onclick="openBulkModal()">\uD83D\uDDC2 Distribuir fotos em lote</button>
-      <button class="btn-tool" onclick="verificarArmazenamento()">\uD83D\uDD0D Verificar armazenamento</button>
+      <button class="btn-tool primary" onclick="openImportModal()">⬆ Importar (XLSX/CSV/JSON)</button>
+      <button class="btn-tool primary" id="exportPdfBtn" onclick="exportPDF()">⬇ Exportar PDF</button>
+      <button class="btn-tool" onclick="exportJSON()">⬇ Backup JSON</button>
+      <button class="btn-tool" onclick="openNewItemModal()">＋ Nova coisa</button>
+      <button class="btn-tool primary" onclick="openBulkModal()">🗂 Distribuir fotos em lote</button>
+      <button class="btn-tool" onclick="verificarArmazenamento()">🔍 Verificar armazenamento</button>
     </div>
     <div class="upload-search-row">
       <input class="search-input" id="uploadSearch" placeholder="Filtrar coisas..." oninput="filterUpload()" style="max-width:300px">
@@ -315,36 +315,36 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     <div class="stylist-sidebar">
       <div class="sidebar-section">
         <h3>Coisas em foco</h3>
-        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Clique nas coisas no invent\u00e1rio pra colocar em foco.</p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Clique nas coisas no inventário pra colocar em foco.</p>
         <div class="selected-items-grid" id="selectedGrid">
           <div class="sel-thumb">+</div><div class="sel-thumb">+</div><div class="sel-thumb">+</div>
         </div>
       </div>
       <div class="sidebar-section">
-        <h3>C\u00f4modo</h3>
+        <h3>Cômodo</h3>
         <div style="display:flex;flex-wrap:wrap;gap:5px" id="stylistOccBtns"></div>
       </div>
       <div class="sidebar-section">
-        <h3>Op\u00e7\u00f5es</h3>
+        <h3>Opções</h3>
         <label style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px;cursor:pointer">
           <input type="checkbox" id="stylistExcludeMantidas" style="accent-color:var(--accent);width:16px;height:16px">
           Ignorar coisas marcadas "Manter"
         </label>
         <label style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px">
           <input type="checkbox" id="stylistOnlyWithPhoto" style="accent-color:var(--accent);width:16px;height:16px">
-          S\u00f3 coisas com foto
+          Só coisas com foto
         </label>
       </div>
       <div class="sidebar-section">
         <h3>Pergunta / Pedido</h3>
         <textarea class="prompt-area" id="userPrompt" placeholder="Ex: O que eu posso doar da cozinha? Me ajuda a decidir o que sai do quarto..."></textarea>
-        <button class="btn-ask" id="askBtn" onclick="askStylist()">Perguntar ao Assistente \u2192</button>
+        <button class="btn-ask" id="askBtn" onclick="askStylist()">Perguntar ao Assistente →</button>
       </div>
     </div>
     <div class="chat-area">
       <div class="chat-header"><div class="dot"></div><span class="title">Assistente de Limpa</span></div>
       <div class="messages" id="chatMessages">
-        <div class="empty-chat"><div class="icon">\uD83E\uDDF9</div><p>Coloque coisas em foco, escolha o c\u00f4modo e pergunte o que fazer com elas.</p></div>
+        <div class="empty-chat"><div class="icon">🧹</div><p>Coloque coisas em foco, escolha o cômodo e pergunte o que fazer com elas.</p></div>
       </div>
     </div>
   </div>
@@ -353,10 +353,10 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
 <div id="looks" class="panel">
   <div style="padding-top:24px;max-width:900px;margin:0 auto">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap">
-      <h2 class="section-title" style="margin:0">Listas de Sa\u00edda</h2>
-      <button class="btn-tool primary" onclick="openLookModal()" style="margin-left:auto">\uFF0B Nova lista</button>
+      <h2 class="section-title" style="margin:0">Listas de Saída</h2>
+      <button class="btn-tool primary" onclick="openLookModal()" style="margin-left:auto">＋ Nova lista</button>
     </div>
-    <p class="section-sub">Agrupe coisas em lotes pra doar, vender ou descartar. Ideal pra fotografar uma caixa de doa\u00e7\u00e3o ou montar um an\u00fancio.</p>
+    <p class="section-sub">Agrupe coisas em lotes pra doar, vender ou descartar. Ideal pra fotografar uma caixa de doação ou montar um anúncio.</p>
     <div id="looksList"></div>
   </div>
 </div>
@@ -366,8 +366,8 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
 <div class="modal-overlay" id="lookModal" style="display:none">
   <div class="modal-box">
     <h3 id="lookModalTitle">Nova Lista</h3>
-    <div class="modal-grid full"><div><div class="field-label">Nome da lista</div><input class="field-input" id="lookNome" placeholder="Ex: Caixa de doa\u00e7\u00e3o - cozinha"></div></div>
-    <div class="modal-grid full"><div><div class="field-label">Tipo</div><input class="field-input" id="lookOcasiao" placeholder="Ex: Doa\u00e7\u00e3o, Venda, Descarte, Bazar..."></div></div>
+    <div class="modal-grid full"><div><div class="field-label">Nome da lista</div><input class="field-input" id="lookNome" placeholder="Ex: Caixa de doação - cozinha"></div></div>
+    <div class="modal-grid full"><div><div class="field-label">Tipo</div><input class="field-input" id="lookOcasiao" placeholder="Ex: Doação, Venda, Descarte, Bazar..."></div></div>
     <div class="section-divider">Coisas da lista</div>
     <input class="search-input" id="lookPieceSearch" placeholder="Buscar coisa para adicionar..." oninput="renderLookPieceSearch()" style="width:100%;margin-bottom:8px">
     <div id="lookPieceResults" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;margin-bottom:10px"></div>
@@ -375,16 +375,16 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     <div id="lookSelectedPieces" class="chip-row" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:40px"></div>
     <div class="section-divider">Foto da lista (a caixa, o lote...)</div>
     <div style="display:flex;align-items:center;gap:12px">
-      <label for="lookPhotoInput" id="lookPhotoThumb" style="width:80px;height:80px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0"><span style="font-size:24px">\uD83D\uDCF7</span></label>
+      <label for="lookPhotoInput" id="lookPhotoThumb" style="width:80px;height:80px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0"><span style="font-size:24px">📷</span></label>
       <input type="file" id="lookPhotoInput" accept="image/*" style="display:none" onchange="handleLookPhoto(this)">
       <div style="flex:1">
-        <button class="btn-upload" onclick="document.getElementById('lookPhotoInput').click()" style="font-size:12px;padding:7px 12px">\uD83D\uDCF7 Adicionar foto</button>
-        <button class="btn-upload" id="lookPhotoRemove" onclick="removeLookPhoto()" style="font-size:12px;padding:7px 12px;color:var(--red);border-color:var(--red);display:none;margin-top:6px">\u2715 Remover</button>
+        <button class="btn-upload" onclick="document.getElementById('lookPhotoInput').click()" style="font-size:12px;padding:7px 12px">📷 Adicionar foto</button>
+        <button class="btn-upload" id="lookPhotoRemove" onclick="removeLookPhoto()" style="font-size:12px;padding:7px 12px;color:var(--red);border-color:var(--red);display:none;margin-top:6px">✕ Remover</button>
       </div>
     </div>
-    <div class="modal-grid full" style="margin-top:14px"><div><div class="field-label">Notas (opcional)</div><input class="field-input" id="lookNotas" placeholder="Pra quem vai, pre\u00e7o, onde deixar..."></div></div>
+    <div class="modal-grid full" style="margin-top:14px"><div><div class="field-label">Notas (opcional)</div><input class="field-input" id="lookNotas" placeholder="Pra quem vai, preço, onde deixar..."></div></div>
     <div class="modal-actions">
-      <button class="btn-danger" id="lookDeleteBtn" onclick="deleteCurrentLook()" style="display:none">\uD83D\uDDD1 Excluir</button>
+      <button class="btn-danger" id="lookDeleteBtn" onclick="deleteCurrentLook()" style="display:none">🗑 Excluir</button>
       <button class="btn-cancel" onclick="closeLookModal()">Cancelar</button>
       <button class="btn-confirm" onclick="saveLook()">Salvar lista</button>
     </div>
@@ -398,38 +398,38 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px">Fotos</div>
       <div style="display:flex;gap:10px">
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-          <label for="editPhotoInput0" id="editThumb0" style="width:90px;height:90px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color .2s"><span style="font-size:22px">\uD83D\uDCF7</span><span style="font-size:8px;color:var(--muted);margin-top:3px">Principal</span></label>
+          <label for="editPhotoInput0" id="editThumb0" style="width:90px;height:90px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color .2s"><span style="font-size:22px">📷</span><span style="font-size:8px;color:var(--muted);margin-top:3px">Principal</span></label>
           <input type="file" id="editPhotoInput0" accept="image/*" style="display:none" onchange="handleEditPhoto(0,this)">
-          <button class="btn-upload" id="editRemoveBtn0" onclick="removeEditPhoto(0)" style="font-size:10px;padding:3px 8px;color:var(--red);border-color:var(--red);display:none">\u2715 Remover</button>
+          <button class="btn-upload" id="editRemoveBtn0" onclick="removeEditPhoto(0)" style="font-size:10px;padding:3px 8px;color:var(--red);border-color:var(--red);display:none">✕ Remover</button>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-          <label for="editPhotoInput1" id="editThumb1" style="width:90px;height:90px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color .2s"><span style="font-size:22px">\u2795</span><span style="font-size:8px;color:var(--muted);margin-top:3px">Extra</span></label>
+          <label for="editPhotoInput1" id="editThumb1" style="width:90px;height:90px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color .2s"><span style="font-size:22px">➕</span><span style="font-size:8px;color:var(--muted);margin-top:3px">Extra</span></label>
           <input type="file" id="editPhotoInput1" accept="image/*" style="display:none" onchange="handleEditPhoto(1,this)">
-          <button class="btn-upload" id="editRemoveBtn1" onclick="removeEditPhoto(1)" style="font-size:10px;padding:3px 8px;color:var(--red);border-color:var(--red);display:none">\u2715 Remover</button>
+          <button class="btn-upload" id="editRemoveBtn1" onclick="removeEditPhoto(1)" style="font-size:10px;padding:3px 8px;color:var(--red);border-color:var(--red);display:none">✕ Remover</button>
         </div>
-        <div style="flex:1;font-size:11px;color:var(--muted);line-height:1.6;padding-top:4px">Toque em cada slot pra escolher a foto. A <em>Principal</em> aparece no invent\u00e1rio.</div>
+        <div style="flex:1;font-size:11px;color:var(--muted);line-height:1.6;padding-top:4px">Toque em cada slot pra escolher a foto. A <em>Principal</em> aparece no inventário.</div>
       </div>
-      <button class="btn-tool primary" id="iaIdentifyBtn" onclick="identificarComIA()" style="margin-top:10px;width:100%;justify-content:center">\u2728 Identificar coisa com IA (pela foto principal)</button>
+      <button class="btn-tool primary" id="iaIdentifyBtn" onclick="identificarComIA()" style="margin-top:10px;width:100%;justify-content:center">✨ Identificar coisa com IA (pela foto principal)</button>
     </div>
     <div class="modal-grid">
-      <div><div class="field-label">Categoria</div><div style="display:flex;gap:6px"><select class="field-select" id="editCat" style="flex:1"></select><button class="btn-cancel" style="padding:7px 10px;font-size:12px" onclick="addNewOption('categoria')" title="Nova categoria">\uFF0B</button></div></div>
-      <div><div class="field-label">Nome / O que \u00e9</div><input class="field-input" id="editTipo" placeholder="Ex: Liquidificador"></div>
+      <div><div class="field-label">Categoria</div><div style="display:flex;gap:6px"><select class="field-select" id="editCat" style="flex:1"></select><button class="btn-cancel" style="padding:7px 10px;font-size:12px" onclick="addNewOption('categoria')" title="Nova categoria">＋</button></div></div>
+      <div><div class="field-label">Nome / O que é</div><input class="field-input" id="editTipo" placeholder="Ex: Liquidificador"></div>
     </div>
     <div class="modal-grid">
       <div><div class="field-label">Marca / Modelo</div><input class="field-input" id="editCor" placeholder="Ex: Philips, Mondial..."></div>
-      <div><div class="field-label">Quantidade</div><input class="field-input" id="editEstampa" placeholder="Ex: 1, 12, v\u00e1rios..."></div>
+      <div><div class="field-label">Quantidade</div><input class="field-input" id="editEstampa" placeholder="Ex: 1, 12, vários..."></div>
     </div>
-    <div class="modal-grid full"><div><div class="field-label">Observa\u00e7\u00f5es</div><input class="field-input" id="editObs" placeholder="Estado, defeito, lembran\u00e7a, valor estimado..."></div></div>
+    <div class="modal-grid full"><div><div class="field-label">Observações</div><input class="field-input" id="editObs" placeholder="Estado, defeito, lembrança, valor estimado..."></div></div>
     <div class="section-divider">Destino (o que fazer com isso)</div>
     <div class="chip-row tag-editor-row" id="editDestinoTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
-    <div class="section-divider">C\u00f4modo</div>
+    <div class="section-divider">Cômodo</div>
     <div class="chip-row tag-editor-row" id="editComodoTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
     <div class="section-divider">Estado</div>
     <div class="chip-row tag-editor-row" id="editEstadoTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
     <div class="section-divider">Etiquetas</div>
     <div class="chip-row tag-editor-row" id="editEtiquetaTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
     <div class="modal-actions">
-      <button class="btn-danger" id="editDeleteBtn" onclick="deleteCurrentItem()">\uD83D\uDDD1 Excluir</button>
+      <button class="btn-danger" id="editDeleteBtn" onclick="deleteCurrentItem()">🗑 Excluir</button>
       <button class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
       <button class="btn-confirm" onclick="saveEditModal()">Salvar</button>
     </div>
@@ -439,11 +439,11 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
 <div class="modal-overlay" id="importModal" style="display:none">
   <div class="modal-box">
     <h3>Importar Coisas</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Aceita <strong style="color:var(--accent2)">XLSX</strong>, <strong style="color:var(--accent2)">CSV</strong> ou <strong style="color:var(--accent2)">JSON</strong> de backup. Coisas com ID j\u00e1 existente s\u00e3o ignoradas.</p>
-    <code>id, Categoria, Nome, Marca, Quantidade, Observa\u00e7\u00f5es, C\u00f4modo, Destino</code>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Aceita <strong style="color:var(--accent2)">XLSX</strong>, <strong style="color:var(--accent2)">CSV</strong> ou <strong style="color:var(--accent2)">JSON</strong> de backup. Coisas com ID já existente são ignoradas.</p>
+    <code>id, Categoria, Nome, Marca, Quantidade, Observações, Cômodo, Destino</code>
     <label class="import-drop" id="importDrop">
-      <div>\uD83D\uDCC2 Arraste ou clique para selecionar</div>
-      <div style="font-size:11px;margin-top:5px;opacity:.6">.xlsx \u00b7 .csv \u00b7 .json</div>
+      <div>📂 Arraste ou clique para selecionar</div>
+      <div style="font-size:11px;margin-top:5px;opacity:.6">.xlsx · .csv · .json</div>
       <input type="file" id="importFile" accept=".csv,.json,.xlsx" onchange="handleImportFile(this)">
     </label>
     <div class="import-preview" id="importPreview"></div>
@@ -464,7 +464,7 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
 
 <div class="bulk-overlay" id="bulkModal" style="display:none">
   <div class="bulk-header">
-    <h3>\uD83D\uDDC2 Distribuir Fotos em Lote</h3>
+    <h3>🗂 Distribuir Fotos em Lote</h3>
     <span id="bulkCounter" class="bulk-counter"></span>
     <button class="btn-cancel" onclick="closeBulkModal()">Fechar</button>
     <button class="btn-confirm" onclick="saveBulkPhotos()">Salvar tudo</button>
@@ -476,9 +476,9 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     </div>
     <div class="bulk-main">
       <div class="bulk-preview">
-        <div class="bulk-preview-placeholder" id="bulkPreviewPlaceholder"><span style="font-size:28px">\uD83D\uDC48</span><span>Selecione uma foto</span></div>
+        <div class="bulk-preview-placeholder" id="bulkPreviewPlaceholder"><span style="font-size:28px">👈</span><span>Selecione uma foto</span></div>
         <img id="bulkPreviewImg" class="bulk-preview-img" style="display:none" src="" alt="">
-        <div class="bulk-preview-info" id="bulkPreviewInfo"><div style="font-size:11px;color:var(--muted);line-height:1.7"><strong style="color:var(--accent2)">Como usar:</strong><br>1. Selecione uma foto na lista \u00e0 esquerda<br>2. Clique em uma coisa para atribuir<br>3. Ou arraste a foto para cima dela</div></div>
+        <div class="bulk-preview-info" id="bulkPreviewInfo"><div style="font-size:11px;color:var(--muted);line-height:1.7"><strong style="color:var(--accent2)">Como usar:</strong><br>1. Selecione uma foto na lista à esquerda<br>2. Clique em uma coisa para atribuir<br>3. Ou arraste a foto para cima dela</div></div>
       </div>
       <div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0">
         <div style="display:flex;gap:8px;align-items:center">
@@ -487,7 +487,7 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
           <input type="file" id="bulkFileInput" accept="image/*" multiple style="display:none" onchange="loadBulkFiles(this)">
         </div>
         <div class="chip-row" id="bulkCatChips" style="gap:5px"></div>
-        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="bulkHideWithPhoto" onchange="filterBulkGrid()" style="accent-color:var(--accent)">Esconder coisas que j\u00e1 t\u00eam foto</label>
+        <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="bulkHideWithPhoto" onchange="filterBulkGrid()" style="accent-color:var(--accent)">Esconder coisas que já têm foto</label>
       </div>
       <div class="bulk-grid" id="bulkGrid"></div>
     </div>
@@ -496,13 +496,13 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
 
 <div class="modal-overlay" id="storageModal" style="display:none">
   <div class="modal-box">
-    <h3>\uD83D\uDD0D Armazenamento na nuvem</h3>
+    <h3>🔍 Armazenamento na nuvem</h3>
     <div id="storageReport" style="font-size:13px;line-height:1.7;color:var(--text)"><div style="text-align:center;color:var(--muted);padding:20px">Analisando...</div></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="document.getElementById('storageModal').style.display='none'">Fechar</button>
-      <button class="btn-confirm" onclick="subirFotosLocais()" style="background:var(--accent);border:none;color:var(--bg)">\u2B06 Subir fotos locais p/ nuvem</button>
-      <button class="btn-confirm" onclick="recarregarFotos()" style="background:none;border:1px solid var(--accent);color:var(--accent)">\uD83D\uDD04 Recarregar da nuvem</button>
-      <button class="btn-danger" id="storageCleanBtn" onclick="limparOrfaos()" style="display:none;margin-right:0">\uD83D\uDDD1 Limpar arquivos \u00f3rf\u00e3os</button>
+      <button class="btn-confirm" onclick="subirFotosLocais()" style="background:var(--accent);border:none;color:var(--bg)">⬆ Subir fotos locais p/ nuvem</button>
+      <button class="btn-confirm" onclick="recarregarFotos()" style="background:none;border:1px solid var(--accent);color:var(--accent)">🔄 Recarregar da nuvem</button>
+      <button class="btn-danger" id="storageCleanBtn" onclick="limparOrfaos()" style="display:none;margin-right:0">🗑 Limpar arquivos órfãos</button>
     </div>
   </div>
 </div>
