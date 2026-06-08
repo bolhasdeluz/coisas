@@ -916,7 +916,7 @@ async function askStylist() {
   try {
     const resp = await fetch(CLOUDFLARE_API + '/stylist', { method:'POST', headers:{'Content-Type':'application/json','Authorization':API_TOKEN}, body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system, messages: [...chatHistory, {role:'user',content:userQ}] }) });
     removeTyping(typingId);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    if (!resp.ok) { let body=''; try { body = await resp.text(); } catch(_) {} throw new Error('HTTP ' + resp.status + (body ? ' — ' + body.slice(0,500) : '')); }
     const data = await resp.json();
     const reply = (data.content && data.content.find(b=>b.type==='text') && data.content.find(b=>b.type==='text').text) || (typeof data.reply==='string'?data.reply:'Sem resposta.');
     chatHistory.push({role:'user',content:userQ},{role:'assistant',content:reply});
@@ -1046,7 +1046,7 @@ async function identificarComIA() {
   const btn = document.getElementById('iaIdentifyBtn'); const txtOrig = btn.textContent; btn.disabled = true; btn.textContent = '✨ Analisando foto...';
   try {
     const resp = await fetch(CLOUDFLARE_API + '/identificar', { method:'POST', headers:{'Content-Type':'application/json','Authorization':API_TOKEN}, body: JSON.stringify({ image: img, categorias: vocab.categorias, comodos: vocab.comodos }) });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    if (!resp.ok) { let body=''; try { body = await resp.text(); } catch(_) {} throw new Error('HTTP ' + resp.status + (body ? ' — ' + body.slice(0,500) : '')); }
     const data = await resp.json(); let txt = (data.content && data.content.find(b => b.type === 'text') && data.content.find(b => b.type === 'text').text) || '';
     txt = txt.replace(/```json/gi, '').replace(/```/g, '').trim(); const info = JSON.parse(txt);
     if (info.tipo) document.getElementById('editTipo').value = info.tipo;
@@ -1055,7 +1055,7 @@ async function identificarComIA() {
     if (info.cat) { if (!vocab.categorias.includes(info.cat)) { vocab.categorias.push(info.cat); saveAll(); } document.getElementById('editCat').innerHTML = vocab.categorias.map(c => '<option'+(c===info.cat?' selected':'')+'>'+c+'</option>').join(''); }
     if (info.comodo) { if (!vocab.comodos.includes(info.comodo)) { vocab.comodos.push(info.comodo); saveAll(); } buildTagEditor('editComodoTags','comodos',[info.comodo]); }
     showToast('✨ Coisa identificada! Revise e ajuste.');
-  } catch(e) { console.warn('Erro IA:', e); showToast('Não consegui identificar. Confira o endpoint /identificar no Worker.'); } finally { btn.disabled = false; btn.textContent = txtOrig; }
+  } catch(e) { console.error('Erro IA:', e); alert('Falha ao identificar:\n\n' + e.message); showToast('Falha na IA — veja o detalhe'); } finally { btn.disabled = false; btn.textContent = txtOrig; }
 }
 
 // ===================== LISTAS =====================
