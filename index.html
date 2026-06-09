@@ -1215,8 +1215,19 @@ async function listarItensDoLugar() {
     if (!resp.ok) { let b=''; try { b = await resp.text(); } catch(_) {} throw new Error('HTTP ' + resp.status + (b ? ' — ' + b.slice(0,500) : '')); }
     const data = await resp.json(); let txt = (data.content && data.content.find(x => x.type === 'text') && data.content.find(x => x.type === 'text').text) || '';
     txt = txt.replace(/```json/gi, '').replace(/```/g, '').trim();
-    let arr = JSON.parse(txt); if (!Array.isArray(arr)) arr = arr.itens || arr.items || [];
-    lugarDetectadosData = arr.map(o => ({ tipo: String(o.tipo || o.nome || '').trim(), cat: String(o.cat || 'Outros'), obs: String(o.obs || ''), checked: true })).filter(o => o.tipo);
+    let parsed = JSON.parse(txt); let arr, lugarSug = null;
+    if (Array.isArray(parsed)) { arr = parsed; } else { arr = parsed.itens || parsed.items || []; lugarSug = parsed.lugar || null; }
+    if (lugarSug) {
+      const nomeEl = document.getElementById('lugarNome'); if (!nomeEl.value.trim() && lugarSug.nome) nomeEl.value = lugarSug.nome;
+      const obsEl = document.getElementById('lugarObs'); if (!obsEl.value.trim() && lugarSug.obs) obsEl.value = lugarSug.obs;
+      const comEl = document.getElementById('lugarComodo');
+      if (!comEl.value && lugarSug.comodo) { if (!vocab.comodos.includes(lugarSug.comodo)) { vocab.comodos.push(lugarSug.comodo); saveAll(); comEl.innerHTML = '<option value="">— cômodo —</option>' + vocab.comodos.map(c => '<option>'+c+'</option>').join(''); } comEl.value = lugarSug.comodo; }
+    }
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const lugN = norm(lugarSug && lugarSug.nome);
+    lugarDetectadosData = arr.map(o => ({ tipo: String(o.tipo || o.nome || '').trim(), cat: String(o.cat || 'Outros'), obs: String(o.obs || ''), checked: true }))
+      .filter(o => o.tipo)
+      .filter(o => !lugN || !(norm(o.tipo) === lugN || (o.cat === 'Móveis' && norm(o.tipo).includes(lugN))));
     renderLugarDetectados();
     document.getElementById('lugarDetectadosWrap').style.display = lugarDetectadosData.length ? 'block' : 'none';
     showToast(lugarDetectadosData.length ? '✨ '+lugarDetectadosData.length+' itens detectados' : 'Nada detectado na foto');
