@@ -260,6 +260,7 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     <button class="active" onclick="showPanel('catalogo',this)">Inventário</button>
     <button onclick="showPanel('upload',this)">Fotos &amp; Dados</button>
     <button onclick="showPanel('stylist',this)">Assistente</button>
+    <button onclick="showPanel('lugares',this)">Lugares</button>
     <button onclick="showPanel('looks',this)">Listas</button>
   </nav>
 </header>
@@ -271,6 +272,7 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     <div class="filter-row">
       <input class="search-input" id="searchInput" placeholder="Buscar por nome, marca, cômodo..." oninput="filterItems()" style="flex:1">
       <select class="filter-select" id="catFilter" onchange="filterItems()"><option value="">Todas categorias</option></select>
+      <select class="filter-select" id="lugarFilter" onchange="filterItems()"><option value="">Todos os lugares</option></select>
       <select class="filter-select" id="photoFilter" onchange="filterItems()">
         <option value="">Todas as coisas</option>
         <option value="com">Com foto</option>
@@ -361,6 +363,17 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
   </div>
 </div>
 
+<div id="lugares" class="panel">
+  <div style="padding-top:24px;max-width:900px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap">
+      <h2 class="section-title" style="margin:0">Lugares</h2>
+      <button class="btn-tool primary" onclick="openLugarModal()" style="margin-left:auto">＋ Novo lugar</button>
+    </div>
+    <p class="section-sub">Mapeie cantos da casa (estante, gaveta, caixa, prateleira). Tire uma foto do lugar e a IA lista o que está vendo — daí você cria os cards já ligados àquele lugar e sabe onde cada coisa está.</p>
+    <div id="lugaresList"></div>
+  </div>
+</div>
+
 </main>
 
 <div class="modal-overlay" id="lookModal" style="display:none">
@@ -424,6 +437,8 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
     <div class="chip-row tag-editor-row" id="editDestinoTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
     <div class="section-divider">Cômodo</div>
     <div class="chip-row tag-editor-row" id="editComodoTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
+    <div class="section-divider">Onde fica (Lugar)</div>
+    <div style="display:flex;gap:6px"><select class="field-select" id="editLugar" style="flex:1"></select><button class="btn-cancel" style="padding:7px 10px;font-size:12px" onclick="novoLugarRapido()" title="Novo lugar">＋</button></div>
     <div class="section-divider">Estado</div>
     <div class="chip-row tag-editor-row" id="editEstadoTags" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:36px;flex-wrap:wrap;gap:6px"></div>
     <div class="section-divider">Etiquetas</div>
@@ -507,6 +522,39 @@ main{max-width:1400px;margin:0 auto;padding:0 24px 48px}
   </div>
 </div>
 
+<div class="modal-overlay" id="lugarModal" style="display:none">
+  <div class="modal-box">
+    <h3 id="lugarModalTitle">Novo Lugar</h3>
+    <div class="modal-grid">
+      <div><div class="field-label">Nome do lugar</div><input class="field-input" id="lugarNome" placeholder="Ex: Estante da sala, Gaveta 2..."></div>
+      <div><div class="field-label">Cômodo</div><select class="field-select" id="lugarComodo"></select></div>
+    </div>
+    <div class="modal-grid full"><div><div class="field-label">Observações</div><input class="field-input" id="lugarObs" placeholder="Detalhes do lugar (opcional)"></div></div>
+    <div class="section-divider">Foto do lugar</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <label for="lugarPhotoInput" id="lugarPhotoThumb" style="width:90px;height:90px;border-radius:10px;border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0"><span style="font-size:24px">📷</span></label>
+      <input type="file" id="lugarPhotoInput" accept="image/*" style="display:none" onchange="handleLugarPhoto(this)">
+      <div style="flex:1">
+        <button class="btn-upload" onclick="document.getElementById('lugarPhotoInput').click()" style="font-size:12px;padding:7px 12px">📷 Adicionar foto</button>
+        <button class="btn-upload" id="lugarPhotoRemove" onclick="removeLugarPhoto()" style="font-size:12px;padding:7px 12px;color:var(--red);border-color:var(--red);display:none;margin-top:6px">✕ Remover</button>
+      </div>
+    </div>
+    <button class="btn-tool primary" id="lugarIaBtn" onclick="listarItensDoLugar()" style="margin-top:12px;width:100%;justify-content:center">✨ Listar o que tem nessa foto (IA)</button>
+    <div id="lugarDetectadosWrap" style="display:none;margin-top:12px">
+      <div class="section-divider" style="margin-top:4px">O que a IA viu — marque o que vira card</div>
+      <div id="lugarDetectados" style="display:flex;flex-direction:column;gap:6px"></div>
+      <button class="btn-confirm" onclick="criarCardsDetectados()" style="margin-top:10px;width:100%">＋ Criar cards das coisas marcadas (ligadas a este lugar)</button>
+    </div>
+    <div class="section-divider">Coisas neste lugar</div>
+    <div id="lugarCoisas" class="chip-row" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px;min-height:40px;flex-wrap:wrap"></div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="lugarDeleteBtn" onclick="deleteCurrentLugar()" style="display:none">🗑 Excluir</button>
+      <button class="btn-cancel" onclick="closeLugarModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="saveLugar()">Salvar lugar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 // ===================== CONFIG NUVEM =====================
@@ -524,6 +572,7 @@ let photos = {};
 let selectedItems = new Set();
 let chatHistory = [];
 let looks = [];
+let lugares = [];
 
 let vocab = {
   categorias: ["Móveis","Eletrônicos","Eletrodomésticos","Cozinha e utensílios","Decoração","Livros e papéis","Roupas e têxteis","Calçados","Brinquedos e jogos","Ferramentas","Higiene e beleza","Documentos","Sentimental","Plantas","Outros"],
@@ -535,7 +584,7 @@ let vocab = {
 let itemTags = {};
 let activeFilters = { destinos: new Set(), comodos: new Set(), estados: new Set(), etiquetas: new Set() };
 
-const LS = { photos:'obj_photos', selected:'obj_selected', vocab:'obj_vocab', tags:'obj_tags', wardrobe:'obj_wardrobe', looks:'obj_looks', migrado:'obj_migrado_fotos' };
+const LS = { photos:'obj_photos', selected:'obj_selected', vocab:'obj_vocab', tags:'obj_tags', wardrobe:'obj_wardrobe', looks:'obj_looks', lugares:'obj_lugares', migrado:'obj_migrado_fotos' };
 
 const DEST_CLASS = { 'Manter':'dest-manter','Doar':'dest-doar','Vender':'dest-vender','Descartar':'dest-descartar','Reciclar':'dest-reciclar','Em dúvida':'dest-duvida' };
 const DEST_SAIR = ['Doar','Vender','Descartar','Reciclar'];
@@ -552,6 +601,7 @@ function loadLocal() {
     if (t) { const saved = JSON.parse(t); Object.keys(saved).forEach(k => { if (!itemTags[k]) itemTags[k] = saved[k]; else Object.keys(saved[k]).forEach(f => { itemTags[k][f] = saved[k][f]; }); }); }
     const w = localStorage.getItem(LS.wardrobe); if (w) { const pw = JSON.parse(w); if (Array.isArray(pw)) wardrobe = pw; }
     const lk = localStorage.getItem(LS.looks); if (lk) { const pl = JSON.parse(lk); if (Array.isArray(pl)) looks = pl; }
+    const lg = localStorage.getItem(LS.lugares); if (lg) { const pg = JSON.parse(lg); if (Array.isArray(pg)) lugares = pg; }
   } catch(e) { console.warn('loadLocal error:', e); }
   if (!wardrobe) wardrobe = BASE_OBJETOS.map(i => ({...i}));
 }
@@ -569,7 +619,8 @@ async function loadCloud() {
       if (data.itemTags) { const merged = JSON.parse(JSON.stringify(BASE_ITEM_TAGS)); Object.keys(data.itemTags).forEach(k => { if (!merged[k]) merged[k] = data.itemTags[k]; else Object.keys(data.itemTags[k]).forEach(f => { merged[k][f] = data.itemTags[k][f]; }); }); itemTags = merged; }
       if (data.wardrobe && Array.isArray(data.wardrobe)) wardrobe = data.wardrobe;
       if (data.looks && Array.isArray(data.looks)) looks = data.looks;
-      carregarFotosDaNuvem(data.lookPhotos || []);
+      if (data.lugares && Array.isArray(data.lugares)) lugares = data.lugares;
+      carregarFotosDaNuvem([...(data.lookPhotos || []), ...(data.lugarPhotos || [])]);
       try {
         localStorage.setItem(LS.photos, JSON.stringify(photos));
         localStorage.setItem(LS.selected, JSON.stringify([...selectedItems]));
@@ -577,6 +628,7 @@ async function loadCloud() {
         localStorage.setItem(LS.tags, JSON.stringify(itemTags));
         localStorage.setItem(LS.wardrobe, JSON.stringify(wardrobe));
         localStorage.setItem(LS.looks, JSON.stringify(looks));
+        localStorage.setItem(LS.lugares, JSON.stringify(lugares));
       } catch(e) {}
       updateSyncStatus('ok'); return true;
     }
@@ -594,6 +646,7 @@ function saveAll() {
     localStorage.setItem(LS.tags, JSON.stringify(itemTags));
     localStorage.setItem(LS.wardrobe, JSON.stringify(wardrobe));
     localStorage.setItem(LS.looks, JSON.stringify(looks));
+    localStorage.setItem(LS.lugares, JSON.stringify(lugares));
   } catch(e) { console.warn('localStorage cheio?', e); }
   scheduleCloudSync();
 }
@@ -605,7 +658,7 @@ async function doCloudSync() {
   if (fotosCarregando) { pendingSync = true; setTimeout(() => { if(!fotosCarregando) doCloudSync(); }, 1500); return; }
   if (cloudSyncing) { pendingSync = true; return; }
   cloudSyncing = true; updateSyncStatus('saving');
-  const estado = { selectedItems:[...selectedItems], vocab, itemTags, wardrobe, looks, lookPhotos: lookPhotosManifest(), savedAt: new Date().toISOString() };
+  const estado = { selectedItems:[...selectedItems], vocab, itemTags, wardrobe, looks, lugares, lookPhotos: lookPhotosManifest(), lugarPhotos: lugarPhotosManifest(), savedAt: new Date().toISOString() };
   const payload = JSON.stringify(estado);
   const sizeMB = (payload.length / 1048576).toFixed(2);
   try {
@@ -625,6 +678,7 @@ let dirtyPhotos = new Set(), photoSyncTimer = null;
 function photoKeysForItem(id) { return ['item-' + id + '-0', 'item-' + id + '-1']; }
 function marcarFotoSuja(id) { photoKeysForItem(id).forEach(k => dirtyPhotos.add(k)); agendarSyncFotos(); }
 function marcarLookFotoSuja(lookId) { dirtyPhotos.add('look-' + lookId); agendarSyncFotos(); }
+function marcarLugarFotoSuja(lugarId) { dirtyPhotos.add('lugar-' + lugarId); agendarSyncFotos(); }
 function agendarSyncFotos() { if (photoSyncTimer) clearTimeout(photoSyncTimer); photoSyncTimer = setTimeout(syncFotosSujas, 800); }
 async function putFoto(key, dataUrl) { const res = await fetch(CLOUDFLARE_API + '/foto/' + encodeURIComponent(key), { method:'PUT', headers:{ 'Content-Type':'text/plain','Authorization':API_TOKEN }, body: dataUrl || '' }); if (!res.ok) throw new Error('PUT foto ' + key + ' HTTP ' + res.status); }
 async function delFoto(key) { try { await fetch(CLOUDFLARE_API + '/foto/' + encodeURIComponent(key), { method:'DELETE', headers:{ 'Authorization':API_TOKEN } }); } catch(e) {} }
@@ -636,18 +690,21 @@ async function syncFotosSujas() {
     try {
       if (key.startsWith('item-')) { const m = key.match(/^item-(\d+)-(\d)$/); if (!m) continue; const id = Number(m[1]), slot = Number(m[2]); const p = photos[id]; const val = Array.isArray(p) ? p[slot] : (slot === 0 ? p : null); if (val) await putFoto(key, val); else await delFoto(key); }
       else if (key.startsWith('look-')) { const lookId = key.slice('look-'.length); const look = looks.find(l => String(l.id) === lookId); if (look && look.foto) await putFoto(key, look.foto); else await delFoto(key); }
+      else if (key.startsWith('lugar-')) { const lugarId = key.slice('lugar-'.length); const lugar = lugares.find(l => String(l.id) === lugarId); if (lugar && lugar.foto) await putFoto(key, lugar.foto); else await delFoto(key); }
     } catch(e) { console.warn('Falha ao subir foto', key, e); dirtyPhotos.add(key); }
   }
   updateSyncStatus(dirtyPhotos.size ? 'error' : 'ok');
 }
 function lookPhotosManifest() { return looks.filter(l => l.foto).map(l => 'look-' + l.id); }
+function lugarPhotosManifest() { return lugares.filter(l => l.foto).map(l => 'lugar-' + l.id); }
 async function carregarFotosDaNuvem(lookPhotoKeys) {
   fotosCarregando = true;
   let keys = [];
   try { const res = await fetch(CLOUDFLARE_API + '/fotos-lista', { headers:{ 'Authorization':API_TOKEN } }); if (res.ok) { const d = await res.json(); keys = d.keys || []; } } catch(e) {}
   const itemKeys = keys.filter(k => /^item-\d+-\d$/.test(k));
-  const lookKeys = [...new Set([...(lookPhotoKeys||[]), ...keys.filter(k => /^look-/.test(k))])];
-  const todas = [...itemKeys, ...lookKeys];
+  const lookKeys = [...new Set([...(lookPhotoKeys||[]).filter(k=>/^look-/.test(k)), ...keys.filter(k => /^look-/.test(k))])];
+  const lugarKeys = [...new Set([...(lookPhotoKeys||[]).filter(k=>/^lugar-/.test(k)), ...keys.filter(k => /^lugar-/.test(k))])];
+  const todas = [...itemKeys, ...lookKeys, ...lugarKeys];
   if (!todas.length) { fotosCarregando = false; return; }
   let baixadas = 0, falhas = 0, mudou = false; updateSyncStatus('loading');
   const LOTE = 6;
@@ -658,10 +715,11 @@ async function carregarFotosDaNuvem(lookPhotoKeys) {
       if (erro) { falhas++; return; } if (!url) return;
       const mItem = key.match(/^item-(\d+)-(\d)$/);
       if (mItem) { const id = Number(mItem[1]), slot = Number(mItem[2]); const cur = photos[id]; if (slot === 0) { if (Array.isArray(cur)) photos[id] = [url, cur[1]]; else photos[id] = url; } else { const p0 = Array.isArray(cur) ? cur[0] : (cur || null); photos[id] = [p0, url]; } mudou = true; }
+      else if (key.startsWith('lugar-')) { const lugarId = key.slice('lugar-'.length); const lugar = lugares.find(l => String(l.id) === lugarId); if (lugar) { lugar.foto = url; mudou = true; } }
       else { const lookId = key.slice('look-'.length); const look = looks.find(l => String(l.id) === lookId); if (look) { look.foto = url; mudou = true; } }
       baixadas++;
     });
-    if (mudou) { renderGrid(); if (document.getElementById('upload').classList.contains('active')) renderUpload(); if (document.getElementById('looks').classList.contains('active')) renderLooks(); }
+    if (mudou) { renderGrid(); if (document.getElementById('upload').classList.contains('active')) renderUpload(); if (document.getElementById('looks').classList.contains('active')) renderLooks(); if (document.getElementById('lugares').classList.contains('active')) renderLugares(); }
   }
   if (mudou) { try { localStorage.setItem(LS.photos, JSON.stringify(photos)); } catch(e) {} }
   fotosCarregando = false;
@@ -686,6 +744,7 @@ function showPanel(id, btn) {
   if (id === 'upload') renderUpload();
   if (id === 'stylist') { renderSelectedPanel(); buildStylistOcc(); }
   if (id === 'looks') renderLooks();
+  if (id === 'lugares') renderLugares();
 }
 
 function renderResumo() {
@@ -707,6 +766,8 @@ function renderResumo() {
 function buildFilterUI() {
   const catSel = document.getElementById('catFilter'); const prevCat = catSel.value;
   catSel.innerHTML = '<option value="">Todas categorias</option>' + vocab.categorias.map(c => '<option'+(c===prevCat?' selected':'')+'>'+c+'</option>').join('');
+  const lugSel = document.getElementById('lugarFilter'); const prevLug = lugSel.value;
+  lugSel.innerHTML = '<option value="">Todos os lugares</option><option value="__sem__"'+(prevLug==='__sem__'?' selected':'')+'>Sem lugar definido</option>' + lugares.map(l => '<option value="'+l.id+'"'+(String(l.id)===prevLug?' selected':'')+'>'+(l.nome||('Lugar #'+l.id))+'</option>').join('');
   buildChipRow('destinoChips','destinos'); buildChipRow('comodoChips','comodos'); buildChipRow('estadoChips','estados'); buildChipRow('etiquetaChips','etiquetas');
 }
 const CHIP_LABELS = { destinos:'Destino', comodos:'Cômodo', estados:'Estado', etiquetas:'Etiqueta' };
@@ -732,6 +793,7 @@ function renderGrid(filtered) {
     const photo = photos[item.id]; const sel = selectedItems.has(item.id); const tags = itemTags[item.id] || {};
     const destino = destinoDoItem(item.id); const destCls = DEST_CLASS[destino] || '';
     const allTags = [ ...(tags.comodos || []).map(t => '<span class="tag comodo">'+t+'</span>'), ...(tags.estados || []).map(t => '<span class="tag estado">'+t+'</span>'), ...(tags.etiquetas || []).map(t => '<span class="tag etiqueta">'+t+'</span>') ].join('');
+    const lugNome = nomeLugar(item.lugarId); const lugTag = lugNome ? '<span class="tag" style="color:#d3b3e8;border-color:#3a2a48;background:#1b1426">📍 '+lugNome+'</span>' : '';
     const destOptions = ['<option value="">— destino</option>', ...vocab.destinos.map(d => '<option value="'+d+'"'+(d===destino?' selected':'')+'>'+d+'</option>')].join('');
     return '<div class="item-card'+(sel?' selected':'')+'" data-id="'+item.id+'">'
       + '<div class="select-badge">✓</div>'
@@ -739,7 +801,7 @@ function renderGrid(filtered) {
       + (photo ? '<div class="item-thumb" style="position:relative"><img src="'+(Array.isArray(photo)?photo[0]:photo)+'" alt="" loading="lazy">'+(Array.isArray(photo)&&photo[1]?'<span style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.6);border-radius:8px;font-size:9px;padding:1px 5px;color:var(--accent2)">+1</span>':'')+'</div>' : '<div class="no-photo"><span class="no-photo-icon">📦</span><span>sem foto</span></div>')
       + '<div class="item-info"><div class="item-id">#'+item.id+(item.qtd && String(item.qtd).trim() && item.qtd!='1' ? ' · '+item.qtd+'x' : '')+'</div>'
       + '<div class="item-name">'+(item.tipo||'(sem nome)')+'</div>'
-      + '<div class="item-tags"><span class="tag cat">'+item.cat+'</span>'+(destino ? '<span class="tag dest '+destCls+'">'+destino+'</span>' : '')+allTags+'</div>'
+      + '<div class="item-tags"><span class="tag cat">'+item.cat+'</span>'+(destino ? '<span class="tag dest '+destCls+'">'+destino+'</span>' : '')+lugTag+allTags+'</div>'
       + '<select class="dest-select '+(destino?'set':'')+' '+destCls+'" onclick="event.stopPropagation()" onchange="setDestino('+item.id+', this.value)">'+destOptions+'</select>'
       + '</div></div>';
   }).join('');
@@ -749,7 +811,7 @@ function renderGrid(filtered) {
 function searchableText(item) {
   const tags = itemTags[item.id] || {};
   const tagWords = [...(tags.destinos||[]), ...(tags.comodos||[]), ...(tags.estados||[]), ...(tags.etiquetas||[])].join(' ');
-  return (item.id+' '+(item.tipo||'')+' '+(item.cor||'')+' '+(item.qtd||'')+' '+(item.obs||'')+' '+(item.cat||'')+' '+tagWords).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return (item.id+' '+(item.tipo||'')+' '+(item.cor||'')+' '+(item.qtd||'')+' '+(item.obs||'')+' '+(item.cat||'')+' '+(nomeLugar(item.lugarId)||'')+' '+tagWords).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 function matchesQuery(item, q) { if (!q) return true; const norm = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); const text = searchableText(item); return norm.split(/\s+/).filter(Boolean).every(word => text.includes(word)); }
 
@@ -758,12 +820,15 @@ function filterItems() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const cat = document.getElementById('catFilter').value;
   const photoF = document.getElementById('photoFilter').value;
+  const lugF = document.getElementById('lugarFilter').value;
   const filtered = wardrobe.filter(i => {
     const tags = itemTags[i.id] || {}; const destino = destinoDoItem(i.id);
     if (limpaMode === 'decidir' && destino && destino !== 'Em dúvida') return false;
     if (limpaMode === 'sair' && !DEST_SAIR.includes(destino)) return false;
     if (q && !matchesQuery(i, q)) return false;
     if (cat && i.cat !== cat) return false;
+    if (lugF === '__sem__' && i.lugarId) return false;
+    if (lugF && lugF !== '__sem__' && String(i.lugarId) !== lugF) return false;
     if (photoF === 'com' && !photos[i.id]) return false;
     if (photoF === 'sem' && photos[i.id]) return false;
     for (const key of ['destinos','comodos','estados','etiquetas']) {
@@ -803,6 +868,7 @@ function openEditModal(id, event) {
   buildTagEditor('editComodoTags','comodos', tags.comodos || []);
   buildTagEditor('editEstadoTags','estados', tags.estados || []);
   buildTagEditor('editEtiquetaTags','etiquetas', tags.etiquetas || []);
+  fillLugarSelect(item.lugarId);
   const p = photos[id]; resetEditPhotoSlot(0, Array.isArray(p) ? p[0] : p); resetEditPhotoSlot(1, Array.isArray(p) ? p[1] : null);
   document.getElementById('editModal').style.display = 'flex';
 }
@@ -813,6 +879,7 @@ function openNewItemModal() {
   document.getElementById('editTipo').value = ''; document.getElementById('editCor').value = ''; document.getElementById('editEstampa').value = ''; document.getElementById('editObs').value = '';
   document.getElementById('editCat').innerHTML = vocab.categorias.map(c => '<option>'+c+'</option>').join('');
   buildTagEditor('editDestinoTags','destinos', []); buildTagEditor('editComodoTags','comodos', []); buildTagEditor('editEstadoTags','estados', []); buildTagEditor('editEtiquetaTags','etiquetas', []);
+  fillLugarSelect(null);
   resetEditPhotoSlot(0, null); resetEditPhotoSlot(1, null);
   document.getElementById('editModal').style.display = 'flex';
 }
@@ -836,8 +903,9 @@ async function saveEditModal() {
   const cor = document.getElementById('editCor').value.trim(); const qtd = document.getElementById('editEstampa').value.trim(); const obs = document.getElementById('editObs').value.trim();
   if (!tipo) { showToast('Preencha o nome / o que é'); return; }
   const tags = { destinos: getTagsFromEditor('editDestinoTags'), comodos: getTagsFromEditor('editComodoTags'), estados: getTagsFromEditor('editEstadoTags'), etiquetas: getTagsFromEditor('editEtiquetaTags') };
-  if (editingId !== null) { const item = wardrobe.find(i => i.id === editingId); if (item) { item.cat = cat; item.tipo = tipo; item.cor = cor; item.qtd = qtd; item.obs = obs; } itemTags[editingId] = tags; }
-  else { const newId = Math.max(0, ...wardrobe.map(i => i.id)) + 1; wardrobe.push({ id:newId, cat, tipo, cor, qtd, obs }); if (Object.values(tags).some(t => t.length > 0)) itemTags[newId] = tags; }
+  const lugIdSel = document.getElementById('editLugar').value; const lugId = lugIdSel ? Number(lugIdSel) : null;
+  if (editingId !== null) { const item = wardrobe.find(i => i.id === editingId); if (item) { item.cat = cat; item.tipo = tipo; item.cor = cor; item.qtd = qtd; item.obs = obs; item.lugarId = lugId; } itemTags[editingId] = tags; }
+  else { const newId = Math.max(0, ...wardrobe.map(i => i.id)) + 1; wardrobe.push({ id:newId, cat, tipo, cor, qtd, obs, lugarId: lugId }); if (Object.values(tags).some(t => t.length > 0)) itemTags[newId] = tags; }
   const targetId = editingId !== null ? editingId : (Math.max(0, ...wardrobe.map(i => i.id)));
   const t0 = document.getElementById('editThumb0'), t1 = document.getElementById('editThumb1'); let cur = photos[targetId];
   let p0 = Array.isArray(cur) ? cur[0] : (cur || null), p1 = Array.isArray(cur) ? cur[1] : null;
@@ -1090,6 +1158,93 @@ function saveLook() { if (!lookDraftPieces.length) { showToast('Adicione pelo me
 function deleteCurrentLook() { if (editingLookId === null) return; if (!confirm('Excluir esta lista?')) return; delFoto('look-' + editingLookId); looks = looks.filter(l => l.id !== editingLookId); saveAll(); closeLookModal(); renderLooks(); showToast('Lista excluída'); flushCloudSync(); }
 function salvarLookDaResposta(idsCsv, nomeSugerido, tipoSugerido) { const ids = idsCsv.split(',').map(Number).filter(Boolean); openLookModal(null); lookDraftPieces = ids; if (nomeSugerido) document.getElementById('lookNome').value = nomeSugerido; if (tipoSugerido) document.getElementById('lookOcasiao').value = tipoSugerido; renderLookSelected(); showToast('Revise e salve a lista'); }
 
+// ===================== LUGARES =====================
+let editingLugarId = null, lugarDraftPhoto = null, lugarDetectadosData = [];
+function nomeLugar(id) { if (id === undefined || id === null || id === '') return ''; const l = lugares.find(x => String(x.id) === String(id)); return l ? (l.nome || ('Lugar #'+l.id)) : ''; }
+function fillLugarSelect(selectedId) { const sel = document.getElementById('editLugar'); if (!sel) return; sel.innerHTML = '<option value="">— sem lugar —</option>' + lugares.map(l => '<option value="'+l.id+'"'+(String(l.id)===String(selectedId)?' selected':'')+'>'+(l.nome||('Lugar #'+l.id))+'</option>').join(''); }
+function novoLugarRapido() { const nome = prompt('Nome do novo lugar:'); if (!nome || !nome.trim()) return; const newId = Math.max(0, ...lugares.map(l => l.id||0)) + 1; lugares.push({ id:newId, nome:nome.trim(), comodo:'', foto:null, obs:'', criadoEm:new Date().toISOString() }); saveAll(); fillLugarSelect(newId); buildFilterUI(); showToast('Lugar "'+nome.trim()+'" criado'); }
+
+function renderLugares() {
+  const list = document.getElementById('lugaresList');
+  if (!lugares.length) { list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 16px;line-height:1.7">Nenhum lugar ainda.<br>Clique em <b style="color:var(--accent)">＋ Novo lugar</b>, tire uma foto e deixe a IA listar o que tem.</div>'; return; }
+  const ordered = [...lugares].sort((a,b) => (b.id||0) - (a.id||0));
+  list.innerHTML = ordered.map(lugar => {
+    const coisas = wardrobe.filter(i => String(i.lugarId) === String(lugar.id));
+    const thumbs = coisas.slice(0,10).map(c => { const ph = photos[c.id]; const src = ph ? (Array.isArray(ph)?ph[0]:ph) : null; return '<div class="look-piece" onclick="openEditModal('+c.id+')" title="'+(c.tipo||'').replace(/"/g,'&quot;')+'">'+(src ? '<img src="'+src+'">' : '<div class="lp-noimg">📦</div>')+'<span class="lp-id">#'+c.id+'</span></div>'; }).join('');
+    const sub = (lugar.comodo ? lugar.comodo+' · ' : '') + coisas.length + ' coisas';
+    return '<div class="look-card"><div class="look-head"><div><div class="look-num">Lugar #'+lugar.id+'</div><div class="look-name">'+(lugar.nome || 'Sem nome')+'</div><div class="look-occ">'+sub+'</div></div>'+(lugar.foto ? '<img class="look-photo" src="'+lugar.foto+'" onclick="abrirFotoLugar(\''+lugar.id+'\')" alt="">' : '')+'<button class="btn-upload" onclick="openLugarModal('+lugar.id+')" style="align-self:flex-start">✎ Editar</button></div><div class="look-pieces">'+(thumbs || '<span style="color:var(--muted);font-size:12px">Sem coisas ligadas</span>')+'</div>'+(lugar.obs ? '<div class="look-notas">"'+lugar.obs+'"</div>' : '')+'</div>';
+  }).join('');
+}
+function abrirFotoLugar(id) { const l = lugares.find(x => String(x.id) === String(id)); if (l && l.foto) { const w = window.open(); if (w) w.document.write('<img src="'+l.foto+'" style="max-width:100%">'); } }
+function openLugarModal(id) {
+  editingLugarId = (id !== undefined && id !== null) ? id : null;
+  lugarDetectadosData = []; document.getElementById('lugarDetectadosWrap').style.display = 'none'; document.getElementById('lugarDetectados').innerHTML = '';
+  document.getElementById('lugarComodo').innerHTML = '<option value="">— cômodo —</option>' + vocab.comodos.map(c => '<option>'+c+'</option>').join('');
+  if (editingLugarId !== null) { const l = lugares.find(x => x.id === editingLugarId); document.getElementById('lugarModalTitle').textContent = 'Editar Lugar #'+l.id; document.getElementById('lugarNome').value = l.nome || ''; document.getElementById('lugarComodo').value = l.comodo || ''; document.getElementById('lugarObs').value = l.obs || ''; lugarDraftPhoto = l.foto || null; document.getElementById('lugarDeleteBtn').style.display = 'block'; }
+  else { document.getElementById('lugarModalTitle').textContent = 'Novo Lugar'; document.getElementById('lugarNome').value = ''; document.getElementById('lugarComodo').value = ''; document.getElementById('lugarObs').value = ''; lugarDraftPhoto = null; document.getElementById('lugarDeleteBtn').style.display = 'none'; }
+  renderLugarPhotoThumb(); renderLugarCoisas(); document.getElementById('lugarModal').style.display = 'flex';
+}
+function closeLugarModal() { document.getElementById('lugarModal').style.display = 'none'; }
+function renderLugarCoisas() {
+  const box = document.getElementById('lugarCoisas');
+  if (editingLugarId === null) { box.innerHTML = '<span style="color:var(--muted);font-size:12px">Salve o lugar para ligar coisas a ele</span>'; return; }
+  const coisas = wardrobe.filter(i => String(i.lugarId) === String(editingLugarId));
+  if (!coisas.length) { box.innerHTML = '<span style="color:var(--muted);font-size:12px">Nenhuma coisa ligada ainda</span>'; return; }
+  box.innerHTML = coisas.map(c => '<span class="tag-edit-chip" onclick="desligarCoisaDoLugar('+c.id+')" title="Tirar daqui">#'+c.id+' '+(c.tipo||'')+' <span class="x">✕</span></span>').join('');
+}
+function desligarCoisaDoLugar(id) { const it = wardrobe.find(i => i.id === id); if (it) { it.lugarId = null; saveAll(); renderLugarCoisas(); filterItems(); showToast('#'+id+' tirado do lugar'); } }
+function handleLugarPhoto(input) { const f = input.files[0]; if (!f) return; compressImage(f, 900, 0.65).then(d => { lugarDraftPhoto = d; renderLugarPhotoThumb(); }); }
+function removeLugarPhoto() { lugarDraftPhoto = null; renderLugarPhotoThumb(); }
+function renderLugarPhotoThumb() { const t = document.getElementById('lugarPhotoThumb'), rm = document.getElementById('lugarPhotoRemove'); if (lugarDraftPhoto) { t.style.border = '1px solid var(--accent)'; t.innerHTML = '<img src="'+lugarDraftPhoto+'" style="width:100%;height:100%;object-fit:cover">'; rm.style.display = 'block'; } else { t.style.border = '1px dashed var(--border)'; t.innerHTML = '<span style="font-size:24px">📷</span>'; rm.style.display = 'none'; } }
+function persistLugarAtual() {
+  const nome = document.getElementById('lugarNome').value.trim(); const comodo = document.getElementById('lugarComodo').value; const obs = document.getElementById('lugarObs').value.trim();
+  if (!nome) { showToast('Dê um nome ao lugar'); return null; }
+  let id;
+  if (editingLugarId !== null) { const l = lugares.find(x => x.id === editingLugarId); Object.assign(l, { nome, comodo, obs, foto: lugarDraftPhoto }); id = l.id; }
+  else { id = Math.max(0, ...lugares.map(l => l.id||0)) + 1; lugares.push({ id, nome, comodo, obs, foto: lugarDraftPhoto, criadoEm: new Date().toISOString() }); editingLugarId = id; document.getElementById('lugarModalTitle').textContent = 'Editar Lugar #'+id; document.getElementById('lugarDeleteBtn').style.display = 'block'; }
+  saveAll(); marcarLugarFotoSuja(id); buildFilterUI(); return id;
+}
+function saveLugar() { const id = persistLugarAtual(); if (id === null) return; closeLugarModal(); renderLugares(); filterItems(); showToast('Lugar salvo!'); flushCloudSync(); syncFotosSujas(); }
+function deleteCurrentLugar() { if (editingLugarId === null) return; if (!confirm('Excluir este lugar? As coisas ligadas a ele ficam sem lugar (não são apagadas).')) return; delFoto('lugar-'+editingLugarId); wardrobe.forEach(i => { if (String(i.lugarId) === String(editingLugarId)) i.lugarId = null; }); lugares = lugares.filter(l => l.id !== editingLugarId); saveAll(); closeLugarModal(); renderLugares(); buildFilterUI(); filterItems(); showToast('Lugar excluído'); flushCloudSync(); }
+async function listarItensDoLugar() {
+  const img = lugarDraftPhoto;
+  if (!img) { showToast('Adicione uma foto do lugar primeiro'); return; }
+  const btn = document.getElementById('lugarIaBtn'); const orig = btn.textContent; btn.disabled = true; btn.textContent = '✨ Analisando a foto...';
+  try {
+    const resp = await fetch(CLOUDFLARE_API + '/listar-itens', { method:'POST', headers:{'Content-Type':'application/json','Authorization':API_TOKEN}, body: JSON.stringify({ image: img, categorias: vocab.categorias, comodos: vocab.comodos }) });
+    if (!resp.ok) { let b=''; try { b = await resp.text(); } catch(_) {} throw new Error('HTTP ' + resp.status + (b ? ' — ' + b.slice(0,500) : '')); }
+    const data = await resp.json(); let txt = (data.content && data.content.find(x => x.type === 'text') && data.content.find(x => x.type === 'text').text) || '';
+    txt = txt.replace(/```json/gi, '').replace(/```/g, '').trim();
+    let arr = JSON.parse(txt); if (!Array.isArray(arr)) arr = arr.itens || arr.items || [];
+    lugarDetectadosData = arr.map(o => ({ tipo: String(o.tipo || o.nome || '').trim(), cat: String(o.cat || 'Outros'), obs: String(o.obs || ''), checked: true })).filter(o => o.tipo);
+    renderLugarDetectados();
+    document.getElementById('lugarDetectadosWrap').style.display = lugarDetectadosData.length ? 'block' : 'none';
+    showToast(lugarDetectadosData.length ? '✨ '+lugarDetectadosData.length+' itens detectados' : 'Nada detectado na foto');
+  } catch(e) { console.error('Erro IA lista:', e); alert('Falha ao listar:\n\n' + e.message); showToast('Falha na IA — veja o detalhe'); }
+  finally { btn.disabled = false; btn.textContent = orig; }
+}
+function renderLugarDetectados() {
+  const box = document.getElementById('lugarDetectados');
+  box.innerHTML = lugarDetectadosData.map((it, idx) => {
+    const opts = vocab.categorias.map(c => '<option'+(c===it.cat?' selected':'')+'>'+c+'</option>').join('');
+    return '<div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 9px">'
+      + '<input type="checkbox" '+(it.checked?'checked':'')+' onchange="lugarDetectadosData['+idx+'].checked=this.checked" style="accent-color:var(--accent);width:17px;height:17px;flex-shrink:0">'
+      + '<input class="field-input" value="'+it.tipo.replace(/"/g,'&quot;')+'" oninput="lugarDetectadosData['+idx+'].tipo=this.value" style="flex:1;padding:6px 8px;font-size:12px">'
+      + '<select class="field-select" onchange="lugarDetectadosData['+idx+'].cat=this.value" style="width:120px;padding:6px 8px;font-size:11px">'+opts+'</select>'
+      + '</div>';
+  }).join('') || '<div style="color:var(--muted);font-size:12px;padding:6px">Nada detectado.</div>';
+}
+function criarCardsDetectados() {
+  const escolhidos = lugarDetectadosData.filter(it => it.checked && it.tipo.trim());
+  if (!escolhidos.length) { showToast('Marque ao menos um item'); return; }
+  const lugarId = persistLugarAtual(); if (lugarId === null) return;
+  const lugar = lugares.find(l => l.id === lugarId); const comodo = lugar && lugar.comodo;
+  let nextId = Math.max(0, ...wardrobe.map(i => i.id)) + 1;
+  escolhidos.forEach(it => { let cat = it.cat || 'Outros'; if (!vocab.categorias.includes(cat)) vocab.categorias.push(cat); wardrobe.push({ id:nextId, cat, tipo: it.tipo.trim(), cor:'', qtd:'', obs: it.obs || '', lugarId }); if (comodo) itemTags[nextId] = { comodos:[comodo] }; nextId++; });
+  const qtd = escolhidos.length; lugarDetectadosData = []; document.getElementById('lugarDetectadosWrap').style.display = 'none';
+  saveAll(); renderLugarCoisas(); buildFilterUI(); filterItems(); showToast(qtd+' cards criados e ligados a este lugar');
+}
+
 // ===================== ARMAZENAMENTO =====================
 let orfaosEncontrados = [];
 async function subirFotosLocais() {
@@ -1098,10 +1253,11 @@ async function subirFotosLocais() {
   let ok = 0, falhas = 0; showToast('Subindo fotos... aguarde.'); const tarefas = [];
   ids.forEach(id => { const p = photos[id]; if (Array.isArray(p)) { if (p[0]) tarefas.push(['item-'+id+'-0', p[0]]); if (p[1]) tarefas.push(['item-'+id+'-1', p[1]]); } else if (p) tarefas.push(['item-'+id+'-0', p]); });
   looks.forEach(l => { if (l.foto) tarefas.push(['look-'+l.id, l.foto]); });
+  lugares.forEach(l => { if (l.foto) tarefas.push(['lugar-'+l.id, l.foto]); });
   const LOTE = 5; for (let i = 0; i < tarefas.length; i += LOTE) { await Promise.all(tarefas.slice(i,i+LOTE).map(async pair => { try { await putFoto(pair[0],pair[1]); ok++; } catch(e) { falhas++; } })); updateSyncStatus('saving'); }
   updateSyncStatus(falhas ? 'error' : 'ok'); showToast('✓ '+ok+' fotos enviadas'+(falhas?', '+falhas+' falharam':'')); if (document.getElementById('storageModal').style.display === 'flex') verificarArmazenamento();
 }
-async function recarregarFotos() { showToast('Recarregando fotos da nuvem...'); await carregarFotosDaNuvem(lookPhotosManifest()); showToast('✓ Fotos recarregadas!'); if (document.getElementById('storageModal').style.display === 'flex') verificarArmazenamento(); }
+async function recarregarFotos() { showToast('Recarregando fotos da nuvem...'); await carregarFotosDaNuvem([...lookPhotosManifest(), ...lugarPhotosManifest()]); showToast('✓ Fotos recarregadas!'); if (document.getElementById('storageModal').style.display === 'flex') verificarArmazenamento(); }
 async function verificarArmazenamento() {
   const modal = document.getElementById('storageModal'), rep = document.getElementById('storageReport'), cleanBtn = document.getElementById('storageCleanBtn');
   cleanBtn.style.display = 'none'; orfaosEncontrados = [];
@@ -1111,9 +1267,9 @@ async function verificarArmazenamento() {
   catch(e) { rep.innerHTML = '<div style="color:var(--red)">Não consegui listar os arquivos. Confira se o Worker foi configurado.<br><span style="font-size:11px">'+e.message+'</span></div>'; return; }
   let jsonKB = 0, jsonTemFotos = false, jsonFotosCount = 0;
   try { const res = await fetch(CLOUDFLARE_API, { headers:{ 'Authorization':API_TOKEN } }); const txt = await res.text(); jsonKB = (txt.length / 1024); const data = JSON.parse(txt); if (data.photos && Object.keys(data.photos).length) { jsonTemFotos = true; jsonFotosCount = Object.keys(data.photos).length; } } catch(e) {}
-  const idsValidos = new Set(wardrobe.map(i => i.id)); const looksValidos = new Set(looks.map(l => String(l.id)));
+  const idsValidos = new Set(wardrobe.map(i => i.id)); const looksValidos = new Set(looks.map(l => String(l.id))); const lugaresValidos = new Set(lugares.map(l => String(l.id)));
   let totalBytes = 0, usados = 0; const orfaos = [];
-  arquivos.forEach(a => { totalBytes += a.size || 0; const mItem = a.key.match(/^item-(\d+)-(\d)$/); const mLook = a.key.match(/^look-(.+)$/); let orfao = false; if (mItem) { if (!idsValidos.has(Number(mItem[1]))) orfao = true; } else if (mLook) { if (!looksValidos.has(mLook[1])) orfao = true; } else orfao = true; if (orfao) orfaos.push(a); else usados++; });
+  arquivos.forEach(a => { totalBytes += a.size || 0; const mItem = a.key.match(/^item-(\d+)-(\d)$/); const mLook = a.key.match(/^look-(.+)$/); const mLugar = a.key.match(/^lugar-(.+)$/); let orfao = false; if (mItem) { if (!idsValidos.has(Number(mItem[1]))) orfao = true; } else if (mLugar) { if (!lugaresValidos.has(mLugar[1])) orfao = true; } else if (mLook) { if (!looksValidos.has(mLook[1])) orfao = true; } else orfao = true; if (orfao) orfaos.push(a); else usados++; });
   orfaosEncontrados = orfaos;
   const fmtMB = b => (b/1048576).toFixed(2) + ' MB'; const orfaosKB = orfaos.reduce((s,a)=>s+(a.size||0),0);
   let html = '';
@@ -1121,6 +1277,7 @@ async function verificarArmazenamento() {
   html += linha('Tamanho total das fotos', fmtMB(totalBytes));
   html += linha('Coisas com foto (no app)', wardrobe.filter(i => photos[i.id]).length);
   html += linha('Listas com foto (no app)', looks.filter(l => l.foto).length);
+  html += linha('Lugares com foto (no app)', lugares.filter(l => l.foto).length);
   html += '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">';
   html += linha('JSON principal', jsonKB.toFixed(1) + ' KB');
   if (jsonTemFotos) { html += '<div style="background:#2a1e14;border:1px solid #5a4020;border-radius:8px;padding:10px;margin-top:10px;font-size:12px;color:#e0b080">O JSON ainda tem <b>'+jsonFotosCount+' fotos embutidas</b> (formato antigo). Clique em "Corrigir JSON" para limpar.</div><button class="btn-upload" onclick="corrigirJsonAntigo()" style="margin-top:8px;color:var(--accent);border-color:var(--accent)">🔧 Corrigir JSON</button>'; }
@@ -1140,7 +1297,7 @@ function showToast(msg) { const t = document.getElementById('toast'); t.textCont
 document.addEventListener('DOMContentLoaded', async function() {
   loadLocal(); buildFilterUI(); filterItems(); renderResumo();
   const got = await loadCloud();
-  if (got) { buildFilterUI(); filterItems(); renderResumo(); if(document.getElementById('upload').classList.contains('active')) renderUpload(); }
+  if (got) { buildFilterUI(); filterItems(); renderResumo(); if(document.getElementById('upload').classList.contains('active')) renderUpload(); if(document.getElementById('lugares').classList.contains('active')) renderLugares(); if(document.getElementById('looks').classList.contains('active')) renderLooks(); }
 });
 window.addEventListener('beforeunload', () => { try { doCloudSync(); } catch(e){} });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { try { doCloudSync(); } catch(e){} } });
